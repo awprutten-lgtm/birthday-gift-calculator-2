@@ -36,7 +36,7 @@ function placeholder(label, emoji) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-const defaultGiftLists = {
+const builtInGiftLists = {
   small: [
     { name: "Cute scented candle", image: placeholder("Scented candle", "🕯️") },
     { name: "My favorite snacks", image: placeholder("Favorite snacks", "🍬") },
@@ -62,6 +62,10 @@ const defaultGiftLists = {
     { name: "Special experience day", image: placeholder("Experience day", "✨") }
   ]
 };
+
+const publishedGiftLists = (window.GIFT_LISTS && typeof window.GIFT_LISTS === "object")
+  ? window.GIFT_LISTS
+  : builtInGiftLists;
 
 const budgetLabels = {
   small: "Keeping it cute: Under €25",
@@ -89,22 +93,23 @@ const giftEditor = document.getElementById("giftEditor");
 const editorFields = document.getElementById("editorFields");
 const giftEditorForm = document.getElementById("giftEditorForm");
 const saveGiftsButton = document.getElementById("saveGiftsButton");
+const downloadGiftDataButton = document.getElementById("downloadGiftDataButton");
 
 function cloneDefaults() {
-  return JSON.parse(JSON.stringify(defaultGiftLists));
+  return JSON.parse(JSON.stringify(publishedGiftLists));
 }
 
 function loadGiftLists() {
   try {
     const saved = JSON.parse(localStorage.getItem("birthdayGiftLists"));
-    if (!saved || !Object.keys(defaultGiftLists).every(key => Array.isArray(saved[key]) && saved[key].length === 4)) {
+    if (!saved || !Object.keys(publishedGiftLists).every(key => Array.isArray(saved[key]) && saved[key].length === 4)) {
       return cloneDefaults();
     }
     return Object.fromEntries(Object.entries(saved).map(([key, gifts]) => [
       key,
       gifts.map((gift, index) => typeof gift === "string"
-        ? { name: gift, image: defaultGiftLists[key][index].image }
-        : { name: gift.name || "Add your gift idea", image: gift.image || defaultGiftLists[key][index].image })
+        ? { name: gift, image: publishedGiftLists[key][index].image }
+        : { name: gift.name || "Add your gift idea", image: gift.image || publishedGiftLists[key][index].image })
     ]));
   } catch {
     return cloneDefaults();
@@ -136,7 +141,7 @@ function showResults() {
   const tone = relationshipScore >= 7 ? "Excellent choices. You are clearly in my good books." : relationshipScore >= 5 ? "A respectable result. These gifts should keep us on good terms." : "Bold of you to continue, but a great gift may save you.";
   resultTitle.textContent = `${budgetLabels[selectedBudget]} gifts`;
   resultMessage.textContent = tone;
-  giftGrid.innerHTML = giftLists[selectedBudget].map((gift, index) => `<article class="gift-card"><div class="gift-image-wrap"><img class="gift-image" src="${escapeAttribute(gift.image)}" alt="Example of ${escapeAttribute(gift.name)}" onerror="this.src='${escapeAttribute(defaultGiftLists[selectedBudget][index].image)}'" /></div><div class="gift-copy"><span>${["🎀", "💝", "🌸", "✨"][index]}</span><h3>${escapeHtml(gift.name)}</h3></div></article>`).join("");
+  giftGrid.innerHTML = giftLists[selectedBudget].map((gift, index) => `<article class="gift-card"><div class="gift-image-wrap"><img class="gift-image" src="${escapeAttribute(gift.image)}" alt="Example of ${escapeAttribute(gift.name)}" onerror="this.src='${escapeAttribute(publishedGiftLists[selectedBudget][index].image)}'" /></div><div class="gift-copy"><span>${["🎀", "💝", "🌸", "✨"][index]}</span><h3>${escapeHtml(gift.name)}</h3></div></article>`).join("");
   quizView.classList.remove("is-active");
   resultView.classList.add("is-active");
   progressBar.style.width = "100%";
@@ -177,7 +182,7 @@ function openGiftEditor() {
       reader.readAsDataURL(file);
     });
     row.querySelector(".reset-image-button").addEventListener("click", () => {
-      const fallback = defaultGiftLists[row.dataset.budget][Number(row.dataset.index)].image;
+      const fallback = publishedGiftLists[row.dataset.budget][Number(row.dataset.index)].image;
       preview.src = fallback; dataInput.value = fallback; urlInput.value = ""; fileInput.value = "";
     });
   });
@@ -193,7 +198,7 @@ function saveGiftLists(event) {
     const index = Number(row.dataset.index);
     updated[budget][index] = {
       name: row.querySelector(".gift-name-input").value.trim() || "Add your gift idea",
-      image: row.querySelector(".image-data-input").value || defaultGiftLists[budget][index].image
+      image: row.querySelector(".image-data-input").value || publishedGiftLists[budget][index].image
     };
   });
   giftLists = updated;
@@ -201,6 +206,21 @@ function saveGiftLists(event) {
   catch { alert("That image is too large to save in this browser. Try a smaller image or use an image URL."); return; }
   giftEditor.close();
   if (resultView.classList.contains("is-active")) showResults();
+}
+
+function downloadGiftData() {
+  const payload = `window.GIFT_LISTS = ${JSON.stringify(giftLists, null, 2)};\n`;
+  const blob = new Blob([payload], { type: "text/javascript;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "gift-data.js";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  downloadGiftDataButton.textContent = "Downloaded ✓";
+  setTimeout(() => { downloadGiftDataButton.textContent = "Download gift-data.js"; }, 1800);
 }
 
 function escapeHtml(value) {
@@ -212,4 +232,5 @@ restartButton.addEventListener("click", restartQuiz);
 copyButton.addEventListener("click", copyGiftList);
 editGiftButton.addEventListener("click", openGiftEditor);
 giftEditorForm.addEventListener("submit", saveGiftLists);
+downloadGiftDataButton.addEventListener("click", downloadGiftData);
 renderQuestion();

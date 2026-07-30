@@ -65,15 +65,17 @@
         </div>
         <button class="icon-button" value="cancel" aria-label="Close editor" type="submit">×</button>
       </div>
-      <p class="editor-intro">These gifts are saved in your browser, so you can change them whenever you like.</p>
+      <p class="editor-intro">Your edits are saved in this browser. To publish the same gifts for everyone, save your gifts first and then download the website gift file.</p>
       <div id="editorFields" class="editor-fields"></div>
       <div class="editor-actions">
         <button class="secondary-button" value="cancel" type="submit">Cancel</button>
+        <button class="secondary-button" id="downloadGiftDataButton" type="button">Download gift-data.js</button>
         <button class="primary-button" id="saveGiftsButton" value="default" type="submit">Save gifts</button>
       </div>
     </form>
   </dialog>
 
+  <script src="gift-data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
