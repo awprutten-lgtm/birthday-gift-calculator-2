@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f8c8dc" />
+  <title>Birthday Gift Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="decor decor-one"></div>
+  <div class="decor decor-two"></div>
+  <div class="decor decor-three"></div>
+
+  <main class="app-shell">
+    <section class="card" aria-live="polite">
+      <div class="top-row">
+        <span class="eyebrow">Birthday edition ✨</span>
+        <button class="icon-button" id="editGiftButton" type="button" aria-label="Edit gift lists" title="Edit gift lists">✎</button>
+      </div>
+
+      <header class="hero">
+        <div class="gift-icon">🎁</div>
+        <h1>What should you get me?</h1>
+        <p>Answer three very important questions and I’ll reveal your approved gift options.</p>
+      </header>
+
+      <div class="progress-wrap" aria-label="Question progress">
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <span id="progressText">Question 1 of 3</span>
+      </div>
+
+      <section id="quizView" class="view is-active">
+        <div id="questionContainer"></div>
+      </section>
+
+      <section id="resultView" class="view">
+        <div class="result-heading">
+          <span class="result-kicker">Your approved list</span>
+          <h2 id="resultTitle">Gift suggestions</h2>
+          <p id="resultMessage"></p>
+        </div>
+
+        <div class="gift-grid" id="giftGrid"></div>
+
+        <div class="result-actions">
+          <button class="secondary-button" id="restartButton" type="button">Start again</button>
+          <button class="primary-button" id="copyButton" type="button">Copy gift list</button>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="giftEditor" class="gift-editor">
+    <form method="dialog" class="editor-panel" id="giftEditorForm">
+      <div class="editor-header">
+        <div>
+          <span class="eyebrow">Make it yours</span>
+          <h2>Edit gift lists</h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="Close editor" type="submit">×</button>
+      </div>
+      <p class="editor-intro">These gifts are saved in your browser, so you can change them whenever you like.</p>
+      <div id="editorFields" class="editor-fields"></div>
+      <div class="editor-actions">
+        <button class="secondary-button" value="cancel" type="submit">Cancel</button>
+        <button class="primary-button" id="saveGiftsButton" value="default" type="submit">Save gifts</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
